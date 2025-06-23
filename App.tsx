@@ -18,6 +18,37 @@ export default function App() {
   const [category, setCategory] = useState("");
   const [isOverweight, setIsOverweight] = useState(false);
 
+  const getGenderBMICategory = (
+    bmiValue: number,
+    genderType: string
+  ): { category: string; isOverweight: boolean } => {
+    if (genderType === "male") {
+      // Klasifikasi untuk Laki-laki
+      if (bmiValue < 20) return { category: "Kurus", isOverweight: false };
+      if (bmiValue >= 20 && bmiValue <= 25.9)
+        return { category: "Normal", isOverweight: false };
+      if (bmiValue >= 26 && bmiValue <= 29.9)
+        return { category: "Overweight", isOverweight: true };
+      if (bmiValue >= 30 && bmiValue <= 34.9)
+        return { category: "Obesitas Kelas 1", isOverweight: true };
+      if (bmiValue >= 35 && bmiValue <= 39.9)
+        return { category: "Obesitas Kelas 2", isOverweight: true };
+      return { category: "Obesitas Kelas 3", isOverweight: true };
+    } else {
+      // Klasifikasi untuk Perempuan
+      if (bmiValue < 18.5) return { category: "Kurus", isOverweight: false };
+      if (bmiValue >= 18.5 && bmiValue <= 24.4)
+        return { category: "Normal", isOverweight: false };
+      if (bmiValue >= 24.5 && bmiValue <= 29.9)
+        return { category: "Overweight", isOverweight: true };
+      if (bmiValue >= 30 && bmiValue <= 34.9)
+        return { category: "Obesitas Kelas 1", isOverweight: true };
+      if (bmiValue >= 35 && bmiValue <= 39.9)
+        return { category: "Obesitas Kelas 2", isOverweight: true };
+      return { category: "Obesitas Kelas 3", isOverweight: true };
+    }
+  };
+
   const calculateBMI = () => {
     const weightNum = parseFloat(weight);
     const heightNum = parseFloat(height) / 100; // convert cm to meters
@@ -35,23 +66,8 @@ export default function App() {
     const bmiValue = weightNum / (heightNum * heightNum);
     setBmi(bmiValue);
 
-    // Determine category and overweight status
-    let bmiCategory = "";
-    let overweight = false;
-
-    if (bmiValue < 18.5) {
-      bmiCategory = "Kekurangan Berat Badan";
-      overweight = false;
-    } else if (bmiValue >= 18.5 && bmiValue < 25) {
-      bmiCategory = "Normal";
-      overweight = false;
-    } else if (bmiValue >= 25 && bmiValue < 30) {
-      bmiCategory = "Kelebihan Berat Badan";
-      overweight = true;
-    } else {
-      bmiCategory = "Obesitas";
-      overweight = true;
-    }
+    const { category: bmiCategory, isOverweight: overweight } =
+      getGenderBMICategory(bmiValue, gender);
 
     setCategory(bmiCategory);
     setIsOverweight(overweight);
@@ -59,25 +75,81 @@ export default function App() {
 
   const getBMIColor = () => {
     if (!bmi) return "#6B7280";
-    if (bmi < 18.5) return "#2563EB";
-    if (bmi < 25) return "#16A34A";
-    if (bmi < 30) return "#CA8A04";
-    return "#DC2626";
+
+    if (gender === "male") {
+      if (bmi < 20) return "#2563EB";
+      if (bmi <= 25) return "#16A34A";
+      if (bmi <= 29) return "#CA8A04";
+      if (bmi <= 34) return "#EA580C";
+      if (bmi <= 39) return "#DC2626";
+      return "#7F1D1D";
+    } else {
+      if (bmi < 18.5) return "#2563EB";
+      if (bmi <= 24.4) return "#16A34A";
+      if (bmi <= 29.9) return "#CA8A04";
+      if (bmi <= 34.9) return "#EA580C";
+      if (bmi <= 39.9) return "#DC2626";
+      return "#7F1D1D";
+    }
   };
 
-  const getBMIDescription = () => {
+  const getGenderSpecificDescription = () => {
     if (!bmi) return "";
 
     const genderText = gender === "male" ? "laki-laki" : "perempuan";
 
-    if (bmi < 18.5) {
-      return `Sebagai ${genderText}, Anda memiliki berat badan kurang dari normal. Disarankan untuk berkonsultasi dengan dokter atau ahli gizi untuk program penambahan berat badan yang sehat.`;
-    } else if (bmi < 25) {
-      return `Sebagai ${genderText}, Anda memiliki berat badan yang ideal dan sehat. Pertahankan pola makan seimbang dan aktivitas fisik teratur.`;
-    } else if (bmi < 30) {
-      return `Sebagai ${genderText}, Anda mengalami kelebihan berat badan (overweight). Disarankan untuk mengurangi berat badan melalui diet seimbang dan olahraga teratur.`;
+    if (gender === "male") {
+      // Interpretasi untuk Laki-laki
+      if (bmi < 20) {
+        return `Sebagai ${genderText}, Anda memiliki berat badan kurus. Laki-laki dengan BMI di bawah 20 berisiko mengalami kekurangan nutrisi dan massa otot yang rendah. Disarankan untuk berkonsultasi dengan ahli gizi untuk program penambahan berat badan yang sehat melalui peningkatan asupan protein dan latihan kekuatan.`;
+      } else if (bmi <= 25) {
+        return `Sebagai ${genderText}, Anda memiliki berat badan normal dan ideal. Pertahankan pola makan seimbang dengan protein yang cukup dan aktivitas fisik teratur termasuk latihan kekuatan untuk menjaga massa otot yang optimal.`;
+      } else if (bmi <= 29) {
+        return `Sebagai ${genderText}, Anda mengalami overweight. Laki-laki dengan BMI 26-29 berisiko mengalami penumpukan lemak perut yang dapat meningkatkan risiko penyakit kardiovaskular. Disarankan untuk mengurangi berat badan 5-10% melalui diet seimbang dan olahraga kardio serta latihan kekuatan.`;
+      } else if (bmi <= 34) {
+        return `Sebagai ${genderText}, Anda mengalami Obesitas Kelas 1. Risiko komplikasi kesehatan meningkat seperti diabetes tipe 2, hipertensi, dan penyakit jantung koroner. Sangat disarankan konsultasi dengan dokter untuk program penurunan berat badan terstruktur dan pemeriksaan kesehatan rutin.`;
+      } else if (bmi <= 39) {
+        return `Sebagai ${genderText}, Anda mengalami Obesitas Kelas 2. Risiko tinggi untuk komplikasi serius termasuk sleep apnea, fatty liver, dan gangguan metabolik. Wajib konsultasi dengan dokter spesialis untuk evaluasi komprehensif dan program penurunan berat badan intensif.`;
+      } else {
+        return `Sebagai ${genderText}, Anda mengalami Obesitas Kelas 3. Risiko sangat tinggi untuk komplikasi yang mengancam jiwa. Segera konsultasi dengan tim medis multidisiplin untuk evaluasi menyeluruh dan kemungkinan intervensi bedah bariatrik.`;
+      }
     } else {
-      return `Sebagai ${genderText}, Anda mengalami obesitas. Sangat disarankan untuk berkonsultasi dengan dokter untuk program penurunan berat badan yang aman dan efektif.`;
+      // Interpretasi untuk Perempuan
+      if (bmi < 18.5) {
+        return `Sebagai ${genderText}, Anda memiliki berat badan kurus. Perempuan dengan BMI di bawah 18.5 berisiko mengalami gangguan menstruasi, osteoporosis dini, dan komplikasi kehamilan. Disarankan untuk berkonsultasi dengan dokter dan ahli gizi untuk program penambahan berat badan yang aman.`;
+      } else if (bmi <= 24.4) {
+        return `Sebagai ${genderText}, Anda memiliki berat badan normal dan sehat. Pertahankan pola makan bergizi seimbang dengan asupan kalsium dan zat besi yang cukup, serta aktivitas fisik teratur untuk menjaga kesehatan tulang dan hormonal.`;
+      } else if (bmi <= 29.9) {
+        return `Sebagai ${genderText}, Anda mengalami overweight. Perempuan dengan BMI 24.5-29.9 berisiko mengalami gangguan hormonal, PCOS, dan komplikasi kehamilan. Disarankan untuk mengurangi berat badan secara bertahap melalui diet seimbang dan olahraga yang sesuai.`;
+      } else if (bmi <= 34.9) {
+        return `Sebagai ${genderText}, Anda mengalami Obesitas Kelas 1. Risiko komplikasi kesehatan meningkat termasuk diabetes gestasional, hipertensi, dan gangguan kesuburan. Sangat disarankan konsultasi dengan dokter untuk program penurunan berat badan yang aman dan sesuai.`;
+      } else if (bmi <= 39.9) {
+        return `Sebagai ${genderText}, Anda mengalami Obesitas Kelas 2. Risiko tinggi untuk komplikasi serius termasuk gangguan reproduksi, sleep apnea, dan penyakit kardiovaskular. Wajib konsultasi dengan dokter spesialis untuk evaluasi dan penanganan komprehensif.`;
+      } else {
+        return `Sebagai ${genderText}, Anda mengalami Obesitas Kelas 3. Risiko sangat tinggi untuk komplikasi yang mengancam jiwa dan gangguan reproduksi berat. Segera konsultasi dengan tim medis multidisiplin untuk evaluasi menyeluruh dan kemungkinan intervensi bedah bariatrik.`;
+      }
+    }
+  };
+
+  const getGenderSpecificRanges = () => {
+    if (gender === "male") {
+      return [
+        { title: "Kurus", range: "< 20.0", color: "#2563EB" },
+        { title: "Normal", range: "20.0 - 25.0", color: "#16A34A" },
+        { title: "Overweight", range: "26.0 - 29.0", color: "#CA8A04" },
+        { title: "Obesitas 1", range: "30.0 - 34.0", color: "#EA580C" },
+        { title: "Obesitas 2", range: "35.0 - 39.0", color: "#DC2626" },
+        { title: "Obesitas 3", range: "≥ 40.0", color: "#7F1D1D" },
+      ];
+    } else {
+      return [
+        { title: "Kurus", range: "< 18.5", color: "#2563EB" },
+        { title: "Normal", range: "18.5 - 24.4", color: "#16A34A" },
+        { title: "Overweight", range: "24.5 - 29.9", color: "#CA8A04" },
+        { title: "Obesitas 1", range: "30.0 - 34.9", color: "#EA580C" },
+        { title: "Obesitas 2", range: "35.0 - 39.9", color: "#DC2626" },
+        { title: "Obesitas 3", range: "≥ 40.0", color: "#7F1D1D" },
+      ];
     }
   };
 
@@ -143,7 +215,7 @@ export default function App() {
         <View style={styles.header}>
           <Text style={styles.title}>🧮 Kalkulator BMI</Text>
           <Text style={styles.subtitle}>
-            Hitung Indeks Massa Tubuh Anda dengan mudah
+            Hitung Indeks Massa Tubuh Berdasarkan Gender
           </Text>
         </View>
 
@@ -240,29 +312,28 @@ export default function App() {
 
             <View style={styles.descriptionContainer}>
               <Text style={styles.descriptionTitle}>
-                🏥 Interpretasi Medis:
+                🏥 Interpretasi Medis Berdasarkan Gender:
               </Text>
-              <Text style={styles.descriptionText}>{getBMIDescription()}</Text>
+              <Text style={styles.descriptionText}>
+                {getGenderSpecificDescription()}
+              </Text>
             </View>
 
             <View style={styles.rangeContainer}>
-              <BMIRangeCard title="Kurus" range="< 18.5" color="#2563EB" />
-              <BMIRangeCard
-                title="Normal"
-                range="18.5 - 24.9"
-                color="#16A34A"
-              />
-              <BMIRangeCard
-                title="Berlebih"
-                range="25.0 - 29.9"
-                color="#CA8A04"
-              />
-              <BMIRangeCard title="Obesitas" range="≥ 30.0" color="#DC2626" />
+              {getGenderSpecificRanges().map((range, index) => (
+                <BMIRangeCard
+                  key={index}
+                  title={range.title}
+                  range={range.range}
+                  color={range.color}
+                />
+              ))}
             </View>
 
             <Text style={styles.disclaimer}>
-              * Hasil ini hanya sebagai referensi. Konsultasikan dengan dokter
-              untuk evaluasi kesehatan yang lebih komprehensif.
+              * Hasil ini berdasarkan klasifikasi BMI khusus gender.
+              Konsultasikan dengan dokter untuk evaluasi kesehatan yang lebih
+              komprehensif.
             </Text>
           </View>
         )}
@@ -461,7 +532,7 @@ const styles = StyleSheet.create({
   },
   rangeCard: {
     flex: 1,
-    minWidth: "45%",
+    minWidth: "30%",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
