@@ -7,10 +7,10 @@ Aplikasi kalkulator BMI berbasis mobile menggunakan React Native + Expo. Menghit
 ## 📱 Tampilan Aplikasi
 
 ### 📥 Form Input
-![Input BMI](./assets/inputbmi.jpg)
+![Input BMI](./inputbmi.jpg)
 
 ### 📊 Hasil Perhitungan
-![Output BMI](./assets/outputbmi.jpg)
+![Output BMI](./outputbmi.jpg)
 
 ---
 
